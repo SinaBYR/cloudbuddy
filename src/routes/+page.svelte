@@ -78,9 +78,13 @@
 {/if}
 
 <Gallery class="gap-4 grid-cols-2 md:grid-cols-3">
-	<Gallery>
+	<Gallery class="h-fit">
 		{#each imagesArrays[0] as image}
-			<button class="relative block group cursor-pointer" title="view the cloud" on:click={() => onImageClick(image)}>
+			<button
+				class="relative block group cursor-pointer"
+				title="view the cloud"
+				on:click={() => onImageClick(image)}
+			>
 				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
 				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
 					<button title="cloud the cloud" on:click|stopPropagation>
@@ -92,9 +96,13 @@
 		{/each}
 	</Gallery>
 
-	<Gallery>
+	<Gallery class="h-fit">
 		{#each imagesArrays[1] as image}
-			<button class="relative group cursor-pointer" title="view the cloud" on:click={() => onImageClick(image)}>
+			<button
+				class="relative group cursor-pointer"
+				title="view the cloud"
+				on:click={() => onImageClick(image)}
+			>
 				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
 				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
 					<button title="cloud the cloud" on:click|stopPropagation>
@@ -106,9 +114,13 @@
 		{/each}
 	</Gallery>
 
-	<Gallery>
+	<Gallery class="h-fit">
 		{#each imagesArrays[2] as image}
-			<button class="relative group cursor-pointer" title="view the cloud" on:click={() => onImageClick(image)}>
+			<button
+				class="relative group cursor-pointer"
+				title="view the cloud"
+				on:click={() => onImageClick(image)}
+			>
 				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
 				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
 					<button title="cloud the cloud" on:click|stopPropagation>
