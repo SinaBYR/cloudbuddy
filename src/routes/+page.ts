@@ -1,17 +1,16 @@
-import type { Image } from "../types";
+import { dataStore, type DataStore } from "../stores/dataStore";
 
 export const ssr = false;
 
 export const load = async () => {
 	try {
 		const res = await fetch('http://localhost:8080/v1/images');
-		const data: Image[] = await res.json()
-		return {
-			images: data
-		}
+		const data: DataStore = await res.json()
+		dataStore.set(data)
 	} catch(err) {
+		console.error(err)
 		return {
-			images: []
+			err
 		}
 	}
 }
