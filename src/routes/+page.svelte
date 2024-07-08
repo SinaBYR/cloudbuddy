@@ -228,7 +228,7 @@
 </Gallery>
 
 {#if imagesCount < dbImagesCount}
-	<div class="w-full flex justify-center items-center mt-4 border border-slate-500">
+	<div class="w-full flex justify-center items-center mt-4 border border-light-secondary dark:border-dark-secondary">
 		<button class="w-full h-full p-4" on:click={() => onLoadMore()}>
 			<span>Load more cloud</span>
 		</button>
