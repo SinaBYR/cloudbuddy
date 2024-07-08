@@ -40,7 +40,24 @@
 			const res = await fetch('http://localhost:8080/v1/images' + '?offset=' + imagesCount);
 			const data: DataStore = await res.json();
 			imagesCount = imagesCount + 5;
-			dataStore.update(ds => ({...ds, images: ds.images.concat(data.images)}))
+			const stringImages = localStorage.getItem('likedImages')
+
+			dataStore.update(ds => ({
+				...ds,
+				images: ds.images.concat(data.images.map(i => {
+					let liked = false
+
+					if(stringImages) {
+						const likedImages: string[] = JSON.parse(stringImages)
+						liked = likedImages.includes(i.uuid) ? true : false
+					}
+
+					return {
+						...i,
+						liked,
+					}
+				})),
+			}))
 		} catch(err) {
 			console.error(err)
 		}
@@ -59,6 +76,19 @@
 						: i
 					)
 				}))
+
+				const stringImages = localStorage.getItem('likedImages')
+				if(!stringImages) {
+					const likedImages = []
+					likedImages.push(image.uuid)
+					const stringifiedImages = JSON.stringify(likedImages)
+					localStorage.setItem('likedImages', stringifiedImages)
+				} else {
+					const likedImages: string[] = JSON.parse(stringImages)
+					likedImages.push(image.uuid)
+					const stringifiedImages = JSON.stringify(likedImages)
+					localStorage.setItem('likedImages', stringifiedImages)
+				}
 			}
 		} catch(err) {
 			console.error(err)
@@ -78,6 +108,13 @@
 						: i
 					)
 				}))
+				const stringImages = localStorage.getItem('likedImages')
+				if(!stringImages) return
+
+				const likedImages: string[] = JSON.parse(stringImages)
+				const newLikedImages = likedImages.filter(uuid => uuid !== image.uuid)
+				const stringifiedImages = JSON.stringify(newLikedImages)
+				localStorage.setItem('likedImages', stringifiedImages)
 			}
 		} catch(err) {
 			console.error(err)
