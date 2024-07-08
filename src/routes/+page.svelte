@@ -25,10 +25,12 @@
 			imagesArrays = value
 		})
 
-		return unsubscribe;
+		console.log(imagesArrays)
+
+		return unsubscribe
 	})
 
-	function onImageClick(image: Image) {
+	function onImageView(image: Image) {
 		modal = true
 		imageInModal = image
 	}
@@ -38,20 +40,57 @@
 			const res = await fetch('http://localhost:8080/v1/images' + '?offset=' + imagesCount);
 			const data: DataStore = await res.json();
 			imagesCount = imagesCount + 5;
-			dataStore.update($ds => ({...$ds, images: $ds.images.concat(data.images)}))
+			dataStore.update(ds => ({...ds, images: ds.images.concat(data.images)}))
+		} catch(err) {
+			console.error(err)
+		}
+	}
+
+	async function onImageLike(image: Image) {
+		try {
+			const res = await fetch("http://localhost:8080/v1/images/" + image.uuid + "/like", {
+				method: 'PUT',
+			})
+			if(res.status === 204) {
+				dataStore.update(ds => ({
+					...ds,
+					images: ds.images.map(i => i.uuid === image.uuid
+						? ({ ...i, likes: i.likes + 1, liked: true })
+						: i
+					)
+				}))
+			}
+		} catch(err) {
+			console.error(err)
+		}
+	}
+
+	async function onImageDislike(image: Image) {
+		try {
+			const res = await fetch("http://localhost:8080/v1/images/" + image.uuid + "/dislike", {
+				method: 'PUT',
+			})
+			if(res.status === 204) {
+				dataStore.update(ds => ({
+					...ds,
+					images: ds.images.map(i => i.uuid === image.uuid
+						? ({ ...i, likes: i.likes - 1, liked: false })
+						: i
+					)
+				}))
+			}
 		} catch(err) {
 			console.error(err)
 		}
 	}
 </script>
 
-{#if imageInModal != null}
+{#if imageInModal}
 	<Modal
 		title="Cloud"
 		bind:open={modal}
-		class="bg-slate-100"
-		classHeader="bg-slate-100"
-		classFooter="bg-slate-100"
+		classHeader="text-light-secondary dark:text-dark-secondary"
+		classFooter="text-light-secondary dark:text-dark-secondary"
 		autoclose
 		outsideclose
 	>
@@ -69,68 +108,86 @@
 				<span class="mr-2">Download</span>
 				<Icon icon="mdi:download" class="text-2xl w-7 h-7" />
 			</a>
-			<button title="Like" class="flex justify-center items-center">
-				<span class="text-md mr-4">{imageInModal.likes}</span>
-				<Icon icon="mdi:cloud-outline" class="text-2xl w-7 h-7" />
-			</button>
+			<div>
+				{#if imageInModal.liked}
+					<button
+						title="Remove like"
+						on:click|stopPropagation={async () => {
+							if(!imageInModal) return
+
+							try {
+								await onImageDislike(imageInModal)
+								imageInModal.likes -= 1
+								imageInModal.liked = false
+							} catch(err) {
+								console.error(err)
+							}
+						}}
+					>
+						<Icon icon="mdi:cloud" class="text-2xl w-7 h-7" />
+						<span class="text-md">{imageInModal.likes}</span>
+					</button>
+				{:else}
+					<button
+						title="Like"
+						on:click|stopPropagation={async () => {
+							if(!imageInModal) return
+
+							try {
+								await onImageLike(imageInModal)
+								imageInModal.likes += 1
+								imageInModal.liked = true
+							} catch(err) {
+								console.error(err)
+							}
+						}}
+					>
+						<Icon icon="mdi:cloud-outline" class="text-2xl w-7 h-7" />
+						<span class="text-md">{imageInModal.likes}</span>
+					</button>
+				{/if}
+			</div>
 		</svelte:fragment>
 	</Modal>
 {/if}
 
 <Gallery class="gap-4 grid-cols-2 md:grid-cols-3">
-	<Gallery class="h-fit">
-		{#each imagesArrays[0] as image}
-			<button
-				class="relative block group cursor-pointer"
-				title="view the cloud"
-				on:click={() => onImageClick(image)}
-			>
-				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
-				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
-					<button title="cloud the cloud" on:click|stopPropagation>
-						<Icon icon="mdi:cloud-outline" class="text-2xl w-7 h-7" />
-						<span class="text-md text-white">{image.likes}</span>
-					</button>
-				</div>
-			</button>
-		{/each}
-	</Gallery>
-
-	<Gallery class="h-fit">
-		{#each imagesArrays[1] as image}
-			<button
-				class="relative group cursor-pointer"
-				title="view the cloud"
-				on:click={() => onImageClick(image)}
-			>
-				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
-				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
-					<button title="cloud the cloud" on:click|stopPropagation>
-						<Icon icon="mdi:cloud-outline" class="text-2xl w-7 h-7" />
-						<span class="text-md text-white">{image.likes}</span>
-					</button>
-				</div>
-			</button>
-		{/each}
-	</Gallery>
-
-	<Gallery class="h-fit">
-		{#each imagesArrays[2] as image}
-			<button
-				class="relative group cursor-pointer"
-				title="view the cloud"
-				on:click={() => onImageClick(image)}
-			>
-				<img src={image.image_url} alt={image.image_url} class="group-hover:opacity-50 h-full object-center object-cover" />
-				<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
-					<button title="cloud the cloud" on:click|stopPropagation>
-						<Icon icon="mdi:cloud-outline" class="text-2xl w-7 h-7" />
-						<span class="text-md text-white">{image.likes}</span>
-					</button>
-				</div>
-			</button>
-		{/each}
-	</Gallery>
+	{#each imagesArrays as images}
+		<Gallery class="h-fit">
+			{#each images as image}
+				<button
+					class="relative block group cursor-pointer"
+					title="View the cloud"
+					on:click={() => onImageView(image)}
+				>
+					<img
+						src={image.image_url}
+						alt={image.image_url}
+						class="group-hover:opacity-50 h-full object-center object-cover"
+					/>
+					<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
+						{#if image.liked}
+							<button
+								title="Remove like"
+								on:click|stopPropagation={() => onImageDislike(image)}
+							>
+								<Icon icon="mdi:cloud" class="text-2xl text-blue-300 w-7 h-7" />
+								<span class="text-md text-blue-300">{image.likes}</span>
+							</button>
+						{:else}
+							<button
+								title="Like"
+								on:click|stopPropagation={() => onImageLike(image)}
+							>
+								<Icon icon="mdi:cloud-outline" class="text-2xl text-blue-300 w-7 h-7" />
+								<span class="text-md text-blue-300">{image.likes}</span>
+							</button>
+						{/if}
+					</div>
+				</button>
+			{/each}
+		</Gallery>
+	{/each}
 </Gallery>
 
 {#if imagesCount < dbImagesCount}

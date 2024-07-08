@@ -3,6 +3,7 @@ export interface Image {
 	image_url: string
 	likes: number
 	user: User
+	liked: boolean
 }
 
 export interface User {
