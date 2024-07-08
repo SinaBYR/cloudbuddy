@@ -1,15 +1,22 @@
 <script>
 	import "../app.css";
 	import Icon from '@iconify/svelte';
-	
+
+	let darkMode = (localStorage.getItem('darkMode') === 'true' ? true : false) || false
+	if(darkMode) {
+		document.documentElement.classList.add('dark')
+	}
 </script>
 <!-- color: #B6C4B6; -->
+<!-- background-color: #222831; -->
 <style lang="postcss">
 	@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
   :global(body) {
-		@apply text-slate-300;
-    background-color: #222831;
+		@apply bg-light-primary;
+		@apply text-light-secondary;
+		@apply dark:bg-dark-primary;
+		@apply dark:text-dark-secondary;
 		font-family: "Noto Sans", sans-serif;
 		padding: 0 1rem;
   }
@@ -19,21 +26,40 @@
 	<div>
 		<h1 class="text-xl font-bold">CloudBuddy</h1>
 	</div>
-	<div>
+	<div class="flex items-center justify-center">
+		<button
+			class="group mr-4"
+			on:click={() => {
+				if(darkMode) {
+					document.documentElement.classList.remove('dark')
+					darkMode = false
+					localStorage.setItem('darkMode', 'false')
+				} else {
+					document.documentElement.classList.add('dark')
+					darkMode = true
+					localStorage.setItem('darkMode', 'true')
+				}
+			}}
+		>
+			{#if !darkMode}
+				<Icon icon="ion:moon-sharp" class="text-2xl group-hover:opacity-80" />
+			{:else}
+				<Icon icon="ion:sunny" class="text-2xl group-hover:opacity-80" />
+			{/if}
+		</button>
 		<a href="/login" class="group">
 			<Icon icon="mdi:user" class="text-3xl group-hover:opacity-80" />
 		</a>
 	</div>
 </nav>
 
-<!-- style="height: calc(100vh - 4rem - 4rem)" -->
 <div class="max-w-4xl mx-auto py-4 mb-20">
 	<slot />
 </div>
 
 <footer
-	class="fixed bottom-0 left-0 w-full flex justify-center items-center p-4 bg-[#222831]"
-	style="box-shadow: 0 -1px 32px 12px #222831;"
+	class="fixed bottom-0 left-0 w-full flex justify-center items-center p-4 bg-light-primary dark:bg-dark-primary"
+	style="box-shadow: 0 -1px 32px 12px {darkMode ? '#222831' : '#E1F7F5'};"
 >
 	<a href="https://github.com/sinabyr/cloudbuddy">
 		<Icon icon="mdi:github" class="text-xl inline mb-1" />
