@@ -7,8 +7,7 @@
 		document.documentElement.classList.add('dark')
 	}
 </script>
-<!-- color: #B6C4B6; -->
-<!-- background-color: #222831; -->
+
 <style lang="postcss">
 	@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
@@ -24,7 +23,9 @@
 
 <nav class="flex items-center justify-between max-w-4xl mx-auto py-4">
 	<div>
-		<h1 class="text-xl font-bold">CloudBuddy</h1>
+		<a href="/">
+			<h1 class="text-xl font-bold">CloudBuddy</h1>
+		</a>
 	</div>
 	<div class="flex items-center justify-center">
 		<button
@@ -70,3 +71,4 @@
 		<span><Icon icon="bi:clouds-fill" class="text-xl inline mb-1" /></span>
 	</p>
 </footer>
+

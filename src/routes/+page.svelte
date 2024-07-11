@@ -27,8 +27,6 @@
 			imagesArrays = value
 		})
 
-		console.log(imagesArrays)
-
 		return unsubscribe
 	})
 
@@ -197,7 +195,7 @@
 		<Gallery class="h-fit">
 			{#each images as image}
 				<button
-					transition:fade
+					in:fade
 					class="relative block group cursor-pointer"
 					title="View the cloud"
 					on:click={() => onImageView(image)}
