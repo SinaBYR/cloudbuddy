@@ -2,6 +2,10 @@ import type { User } from "../types"
 import { parseJwtPayload } from "./jwt"
 import type { AuthStore } from "../stores/authStore"
 
+export function isLoggedIn() {
+	return getLocalAuth() !== null
+}
+
 export function getLocalAuth(): AuthStore | null {
 	const token = localStorage.getItem('token')
 	const user = localStorage.getItem('user')

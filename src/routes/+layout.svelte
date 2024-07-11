@@ -1,11 +1,29 @@
-<script>
+<script lang="ts">
 	import "../app.css";
 	import Icon from '@iconify/svelte';
+	import { onMount } from "svelte";
+	import { authStore, type AuthStore } from "../stores/authStore";
+	import { getLocalAuth } from "$lib/auth";
 
+	let auth: AuthStore|undefined
 	let darkMode = (localStorage.getItem('darkMode') === 'true' ? true : false) || false
 	if(darkMode) {
 		document.documentElement.classList.add('dark')
 	}
+
+	onMount(() => {
+		const auth = getLocalAuth()
+		if(auth) authStore.set(auth)
+	})
+
+	onMount(() => {
+		const unsubscribe = authStore.subscribe(as => {
+			auth = as
+		})
+
+		return unsubscribe;
+	})
+
 </script>
 
 <style lang="postcss">
@@ -48,9 +66,15 @@
 				<Icon icon="ion:sunny" class="text-2xl group-hover:opacity-80" />
 			{/if}
 		</button>
-		<a href="/login" class="group">
-			<Icon icon="mdi:user" class="text-3xl group-hover:opacity-80" />
-		</a>
+		{#if auth}
+			<a href="/dashboard" class="group">
+				<Icon icon="bi:clouds-fill" class="text-2xl group-hover:opacity-80" />
+			</a>
+		{:else}
+			<a href="/login" class="group">
+				<Icon icon="mdi:user" class="text-3xl group-hover:opacity-80" />
+			</a>
+		{/if}
 	</div>
 </nav>
 
