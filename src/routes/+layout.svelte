@@ -3,7 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import { onMount } from "svelte";
 	import { authStore, type AuthStore } from "../stores/authStore";
-	import { getLocalAuth } from "$lib/auth";
+	import { getLocalAuth, logout } from "$lib/auth";
 
 	let auth: AuthStore|undefined
 	let darkMode = (localStorage.getItem('darkMode') === 'true' ? true : false) || false
@@ -23,7 +23,6 @@
 
 		return unsubscribe;
 	})
-
 </script>
 
 <style lang="postcss">
@@ -47,7 +46,8 @@
 	</div>
 	<div class="flex items-center justify-center">
 		<button
-			class="group mr-4"
+			title="Turn on/off the lights"
+			class="group"
 			on:click={() => {
 				if(darkMode) {
 					document.documentElement.classList.remove('dark')
@@ -67,13 +67,12 @@
 			{/if}
 		</button>
 		{#if auth}
-			<a href="/dashboard" class="group">
+			<a href="/dashboard" class="group ml-4" title="Dashboard">
 				<Icon icon="bi:clouds-fill" class="text-2xl group-hover:opacity-80" />
 			</a>
-		{:else}
-			<a href="/login" class="group">
-				<Icon icon="mdi:user" class="text-3xl group-hover:opacity-80" />
-			</a>
+			<button class="group ml-4" title="Goodbye" on:click={logout}>
+				<Icon icon="mdi:logout" class="text-2xl group-hover:opacity-80" />
+			</button>
 		{/if}
 	</div>
 </nav>

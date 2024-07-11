@@ -1,6 +1,12 @@
 import type { User } from "../types"
 import { parseJwtPayload } from "./jwt"
-import type { AuthStore } from "../stores/authStore"
+import { authStore, type AuthStore } from "../stores/authStore"
+
+export function logout() {
+	localStorage.removeItem('token')
+	localStorage.removeItem('user')
+	authStore.update(() => undefined)
+}
 
 export function isLoggedIn() {
 	return getLocalAuth() !== null
