@@ -9,7 +9,7 @@ export interface Image {
 export interface User {
 	uuid: string
 	username: string
-	fullname: string
+	fullname: string | null
 	created_at: string
 }
 
