@@ -4,6 +4,8 @@
 	import type { Image } from '../types';
 	import { dataStore, transformedDataStore, type DataStore } from '../stores/dataStore';
 	import { onMount } from 'svelte';
+	import { Image as OptimizedImage } from '@unpic/svelte';
+	import { fade } from 'svelte/transition';
 
 	let dbImagesCount = 0
 	let imagesCount = 0
@@ -149,6 +151,7 @@
 				{#if imageInModal.liked}
 					<button
 						title="Remove like"
+						class="flex flex-col items-center"
 						on:click|stopPropagation={async () => {
 							if(!imageInModal) return
 
@@ -167,6 +170,7 @@
 				{:else}
 					<button
 						title="Like"
+						class="flex flex-col items-center"
 						on:click|stopPropagation={async () => {
 							if(!imageInModal) return
 
@@ -193,19 +197,23 @@
 		<Gallery class="h-fit">
 			{#each images as image}
 				<button
+					transition:fade
 					class="relative block group cursor-pointer"
 					title="View the cloud"
 					on:click={() => onImageView(image)}
 				>
-					<img
+					<OptimizedImage
 						src={image.image_url}
 						alt={image.image_url}
 						class="group-hover:opacity-50 h-full object-center object-cover"
+						layout="fullWidth"
+						loading="lazy"
 					/>
 					<div class="absolute top-0 p-4 flex text-white opacity-50 group-hover:opacity-100 group-focus:opacity-100 group-focus-within:opacity-100">
 						{#if image.liked}
 							<button
 								title="Remove like"
+								class="flex flex-col items-center"
 								on:click|stopPropagation={() => onImageDislike(image)}
 							>
 								<Icon icon="mdi:cloud" class="text-2xl text-blue-300 w-7 h-7" />
@@ -214,6 +222,7 @@
 						{:else}
 							<button
 								title="Like"
+								class="flex flex-col items-center"
 								on:click|stopPropagation={() => onImageLike(image)}
 							>
 								<Icon icon="mdi:cloud-outline" class="text-2xl text-blue-300 w-7 h-7" />
