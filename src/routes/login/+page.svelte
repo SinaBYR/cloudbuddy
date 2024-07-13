@@ -28,7 +28,7 @@
 		localStorage.setItem('user', JSON.stringify(user))
 		localStorage.setItem('token', token)
 		authStore.set({token, ...user})
-		goto('/dashboard')
+		goto('/manage')
 	}
 
 

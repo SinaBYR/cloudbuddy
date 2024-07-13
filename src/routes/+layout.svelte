@@ -67,7 +67,7 @@
 			{/if}
 		</button>
 		{#if auth}
-			<a href="/dashboard" class="group ml-4" title="Dashboard">
+			<a href="/manage" class="group ml-4" title="Manage">
 				<Icon icon="bi:clouds-fill" class="text-2xl group-hover:opacity-80" />
 			</a>
 			<button class="group ml-4" title="Goodbye" on:click={logout}>
@@ -94,4 +94,3 @@
 		<span><Icon icon="bi:clouds-fill" class="text-xl inline mb-1" /></span>
 	</p>
 </footer>
-
