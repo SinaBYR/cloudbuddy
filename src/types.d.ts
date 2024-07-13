@@ -1,5 +1,6 @@
 export interface Image {
 	uuid: string
+	title: string
 	image_url: string
 	likes: number
 	user: User
