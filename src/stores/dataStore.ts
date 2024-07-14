@@ -3,7 +3,7 @@ import type { Image } from "../types";
 
 export type DataStore = { count: number, images: Image[] }
 
-export const dataStore = writable<DataStore>()
+export const dataStore = writable<DataStore>({ images: [], count: 0 })
 
 export const transformedDataStore = derived(dataStore, $dataStore => {
 	const transformed: [Image[], Image[], Image[]] = [[], [], []]
