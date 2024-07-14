@@ -6,7 +6,7 @@
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { authStore } from "../../stores/authStore";
-	import { dataStore } from "../../stores/dataStore";
+	import { manageStore } from "../../stores/manageStore";
 	import type { Image } from "../../types";
 
 	let title = '', files: FileList|undefined, images: Image[] = []
@@ -17,7 +17,7 @@
 	})
 
 	onMount(() => {
-		const unsubscribe = dataStore.subscribe(value => {
+		const unsubscribe = manageStore.subscribe(value => {
 			images = value.images
 			// imagesCount = value.count
 		})
@@ -27,8 +27,9 @@
 
 	async function handleUpload() {
 		const file = files?.item(0)
-		if(!file) return
+		if(!file || !title) return
 		const formData = new FormData()
+		formData.append('title', title)
 		formData.append('image', file)
 		const token = get(authStore)?.token
 		if(!token) return
@@ -41,7 +42,7 @@
 				},
 			})
 			const newImage: Image = await res.json()
-			dataStore.update(ds => ({
+			manageStore.update(ds => ({
 				...ds,
 				images: ds.images.concat({
 					...newImage,
