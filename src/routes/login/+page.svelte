@@ -8,44 +8,44 @@
 	import { onMount } from "svelte";
 	import { fade } from "svelte/transition";
 	import { type AuthStore, authStore } from "../../stores/authStore";
-	import { parseJwtPayload } from "$lib/jwt";
 	import { isLoggedIn } from "$lib/auth";
 	import { goto } from "$app/navigation";
 
-	let username = '', passphrase = '', login = false
+	let username = '', passphrase = '', error = ''
 	$: valid = username.length !== 0 && passphrase.length >= 8
 
 	onMount(() => {
 		if(isLoggedIn()) goto('/')
 	})
 
-	async function handleSumbit() {
+	async function handleLogin() {
+		error = ''
 		const res = await fetch("http://localhost:8080/v1/auth/signin", {
 			method: 'POST',
 			body: JSON.stringify({ username, passphrase }),
 		})
+		if(!res.ok) {
+			error = "Our gatekeeper clouds don't recognize you :("
+			return
+		}
 		const { token, ...user }: AuthStore = await res.json()
 		localStorage.setItem('user', JSON.stringify(user))
 		localStorage.setItem('token', token)
 		authStore.set({token, ...user})
 		goto('/manage')
 	}
-
-
-function handle() {
-	const payload = parseJwtPayload(localStorage.getItem('token')!)
-	console.log(login)
-	console.log(payload)
-}
 </script>
-
-<button on:click={() => handle()}>Clock</button>
 
 <form
 	in:fade
 	class="max-w-xl mx-auto mt-16"
-	on:submit|preventDefault={handleSumbit}
+	on:submit|preventDefault={handleLogin}
 >
+	{#if error}
+		<div class="mb-6">
+			<p>{error}</p>
+		</div>
+	{/if}
 	<div class="mb-6">
 		<Label for="username" class="block mb-2">Username</Label>
 		<ButtonGroup class="w-full">
