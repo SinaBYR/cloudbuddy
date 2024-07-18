@@ -15,7 +15,7 @@
 
 	let images: Image[] = []
 	let imageCount = 0, dbImageCount = 0
-	let title = '', files: FileList|undefined
+	let title = '', files: FileList|undefined, error = ''
 	$: valid = (files?.length || 0) > 0
 
 	onMount(() => {
@@ -27,6 +27,34 @@
 
 		return unsubscribe
 	})
+
+
+	async function handleDeleteImage(image: Image) {
+		error = ''
+		try {
+			const token = get(authStore)?.token
+			if(!token) return
+			const res = await fetch("http://localhost:8080/v1/images/" + image.uuid, {
+				method: 'DELETE',
+				headers: {
+					'Authorization': 'Bearer ' + token,
+				},
+			})
+			if(res.status === 204) {
+				manageStore.update(ds => ({
+					...ds,
+					images: ds.images.filter(i => i.uuid !== image.uuid)
+				}))
+				return
+			}
+
+			const errMessage = await res.json()
+			error = errMessage.messsage
+		} catch(err) {
+			error = 'something went wrong please excuse my garbage code'
+			console.error(err)
+		}
+	}
 
 	async function handleChangeTitle(image: Image) {
 		try {
@@ -108,13 +136,18 @@
 	}
 </script>
 
-<button on:click={() => console.log(get(authStore))}>hi</button>
 <div class="w-full">
 	<form
 		in:fade
 		class="mt-4"
 		on:submit|preventDefault={handleUpload}
 	>
+		{#if error}
+			<div class="mb-6 text-center">
+				<p>{error}</p>
+			</div>
+		{/if}
+
 		<div class="flex flex-col md:flex-row gap-4 items-center">
 			<div class="w-full">
 				<Input
@@ -156,7 +189,10 @@
 			/>
 		</div>
 		<div>
-			<button class="border-none p-2">
+			<button
+				class="border-none p-2"
+				on:click={() => handleDeleteImage(img)}
+			>
 				<Icon icon="mdi:delete" class="text-xl" />
 			</button>
 		</div>
