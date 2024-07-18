@@ -1,33 +1,83 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import { isLoggedIn } from "$lib/auth";
 	import { Button, Fileupload, Input } from "flowbite-svelte";
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { authStore } from "../../stores/authStore";
 	import { manageStore } from "../../stores/manageStore";
+	import { type DataStore } from "../../stores/dataStore";
 	import type { Image } from "../../types";
+	import Icon from '@iconify/svelte';
+	import { isLoggedIn } from "$lib/auth";
+	import { goto } from "$app/navigation";
 
-	let title = '', files: FileList|undefined, images: Image[] = []
-	$: valid = title.length !== 0 && (files?.length || 0) > 0
+	if(!isLoggedIn()) goto('/')
 
-	onMount(() => {
-		if(!isLoggedIn()) goto('/')
-	})
+	let images: Image[] = []
+	let imageCount = 0, dbImageCount = 0
+	let title = '', files: FileList|undefined
+	$: valid = (files?.length || 0) > 0
 
 	onMount(() => {
 		const unsubscribe = manageStore.subscribe(value => {
 			images = value.images
-			// imagesCount = value.count
+			imageCount = value.images.length
+			dbImageCount = value.count
 		})
 
-		return unsubscribe;
+		return unsubscribe
 	})
+
+	async function handleChangeTitle(image: Image) {
+		try {
+			const formData = new FormData()
+			formData.set('title', image.title)
+			const token = get(authStore)?.token
+			if(!token) return
+			const res = await fetch("http://localhost:8080/v1/images/" + image.uuid + "/changeTitle", {
+				method: 'PUT',
+				body: formData,
+				headers: {
+					'Authorization': 'Bearer ' + token,
+				},
+			})
+			if(res.status === 204) {
+				manageStore.update(ds => ({
+					...ds,
+					images: ds.images.map(i => i.uuid !== image.uuid ? i : ({ ...i, title: image.title }))
+				}))
+			}
+		} catch(err) {
+			console.error(err)
+		}
+	}
+
+	async function handleLoadMore() {
+		const params = new URLSearchParams()
+		const user = get(authStore)
+		if(!user) return
+		params.set('userId', user.uuid)
+		params.set('offset', imageCount.toFixed())
+		try {
+			const res = await fetch('http://localhost:8080/v1/images?' + params.toString())
+			const data: DataStore = await res.json()
+			imageCount += 5
+
+			manageStore.update(ms => ({
+				...ms,
+				images: ms.images.concat(data.images),
+			}))
+		} catch(err) {
+			console.error(err)
+			return {
+				err
+			}
+		}
+	}
 
 	async function handleUpload() {
 		const file = files?.item(0)
-		if(!file || !title) return
+		if(!file) return
 		const formData = new FormData()
 		formData.append('title', title)
 		formData.append('image', file)
@@ -49,6 +99,8 @@
 					liked: false,
 				}),
 			}))
+			dbImageCount += 1
+			imageCount += 1
 			console.log(newImage)
 		} catch(err) {
 			console.error(err)
@@ -56,6 +108,7 @@
 	}
 </script>
 
+<button on:click={() => console.log(get(authStore))}>hi</button>
 <div class="w-full">
 	<form
 		in:fade
@@ -91,14 +144,30 @@
 </div>
 
 {#each images as img}
-	<div class="flex items-center justify-between">
+	<div class="flex items-center justify-between p-2 mt-8 shadow-md rounded">
 		<div>
-			<h1>{img.title}</h1>
-			<h2>{img.likes}</h2>
+			<input
+				id="title"
+				type="text"
+				class="w-full bg-transparent border-none"
+				placeholder="Title"
+				bind:value={img.title}
+				on:blur={() => handleChangeTitle(img)}
+			/>
 		</div>
 		<div>
-			<Button color="alternative">Edit</Button>
+			<button class="border-none p-2">
+				<Icon icon="mdi:delete" class="text-xl" />
+			</button>
 		</div>
 	</div>
 {/each}
+
+{#if imageCount < dbImageCount}
+	<div class="w-full flex justify-center items-center mt-4">
+		<button class="w-full h-full p-4" on:click={() => handleLoadMore()}>
+			<span>Load more</span>
+		</button>
+	</div>
+{/if}
 
