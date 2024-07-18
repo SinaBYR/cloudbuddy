@@ -42,7 +42,7 @@
 	on:submit|preventDefault={handleLogin}
 >
 	{#if error}
-		<div class="mb-6">
+		<div class="mb-6 text-center">
 			<p>{error}</p>
 		</div>
 	{/if}
