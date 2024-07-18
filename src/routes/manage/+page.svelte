@@ -195,16 +195,17 @@
 
 {#each images as img}
 	<div class="flex items-center justify-between p-2 mt-8 shadow-md rounded">
-		<div>
+		<div class="mr-auto">
 			<input
 				id="title"
 				type="text"
-				class="w-full bg-transparent border-none"
+				class="w-fill bg-transparent border-none"
 				placeholder="Title"
 				bind:value={img.title}
 				on:blur={() => handleChangeTitle(img)}
 			/>
 		</div>
+		<div class="mr-2">Likes: {img.likes}</div>
 		<div>
 			<button
 				class="border-none p-2"
