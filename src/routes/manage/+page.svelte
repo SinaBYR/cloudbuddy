@@ -74,8 +74,13 @@
 					...ds,
 					images: ds.images.map(i => i.uuid !== image.uuid ? i : ({ ...i, title: image.title }))
 				}))
+				return
 			}
+
+			const errMessage = await res.json()
+			error = errMessage.messsage
 		} catch(err) {
+			error = 'something went wrong please excuse my garbage code'
 			console.error(err)
 		}
 	}
@@ -88,22 +93,27 @@
 		params.set('offset', imageCount.toFixed())
 		try {
 			const res = await fetch('http://localhost:8080/v1/images?' + params.toString())
-			const data: DataStore = await res.json()
-			imageCount += 5
+			if(res.status === 200) {
+				const data: DataStore = await res.json()
+				imageCount += 5
 
-			manageStore.update(ms => ({
-				...ms,
-				images: ms.images.concat(data.images),
-			}))
-		} catch(err) {
-			console.error(err)
-			return {
-				err
+				manageStore.update(ms => ({
+					...ms,
+					images: ms.images.concat(data.images),
+				}))
+				return
 			}
+
+			const errMessage = await res.json()
+			error = errMessage.messsage
+		} catch(err) {
+			error = 'something went wrong please excuse my garbage code'
+			console.error(err)
 		}
 	}
 
 	async function handleUpload() {
+		error = ''
 		const file = files?.item(0)
 		if(!file) return
 		const formData = new FormData()
@@ -119,18 +129,25 @@
 					'Authorization': 'Bearer ' + token,
 				},
 			})
-			const newImage: Image = await res.json()
-			manageStore.update(ds => ({
-				...ds,
-				images: ds.images.concat({
-					...newImage,
-					liked: false,
-				}),
-			}))
-			dbImageCount += 1
-			imageCount += 1
-			console.log(newImage)
+			if(res.status === 201) {
+				const newImage: Image = await res.json()
+				manageStore.update(ds => ({
+					...ds,
+					images: ds.images.concat({
+						...newImage,
+						liked: false,
+					}),
+				}))
+				dbImageCount += 1
+				imageCount += 1
+				console.log(newImage)
+				return
+			}
+
+			const errMessage = await res.json()
+			error = errMessage.messsage
 		} catch(err) {
+			error = 'something went wrong please excuse my garbage code'
 			console.error(err)
 		}
 	}
