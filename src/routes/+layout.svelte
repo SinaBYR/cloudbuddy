@@ -5,6 +5,9 @@
 	import { authStore, type AuthStore } from "../stores/authStore";
 	import { getLocalAuth, logout } from "$lib/auth";
 
+	const localAuth = getLocalAuth()
+	if(localAuth) authStore.set(localAuth)
+
 	let auth: AuthStore|undefined
 	let darkMode = (localStorage.getItem('darkMode') === 'true' ? true : false) || false
 	if(darkMode) {
@@ -12,16 +15,11 @@
 	}
 
 	onMount(() => {
-		const auth = getLocalAuth()
-		if(auth) authStore.set(auth)
-	})
-
-	onMount(() => {
 		const unsubscribe = authStore.subscribe(as => {
 			auth = as
 		})
 
-		return unsubscribe;
+		return unsubscribe
 	})
 </script>
 
